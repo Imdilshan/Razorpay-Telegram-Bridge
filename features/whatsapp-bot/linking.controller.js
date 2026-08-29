@@ -1,5 +1,6 @@
 const linkSessionService = require('../link-session/link-session.service');
 const merchantService = require('../merchant/merchant.service');
+const cache = require('./cache');
 
 const TRIGGER_WORD = 'link';
 
@@ -9,7 +10,6 @@ const TRIGGER_WORD = 'link';
  * or null if it's not part of linking (caller should route it elsewhere,
  * e.g. to query command handling).
  */
-
 async function handleLinkingFlow(whatsappNumber, rawBody) {
   const body = (rawBody || '').trim();
   const bodyLower = body.toLowerCase();
@@ -79,8 +79,9 @@ async function handleConfirmRelinkFinal(whatsappNumber, bodyLower) {
     return `No changes made. Your current account is still linked.`;
   }
   if (bodyLower === 'confirm') {
+    const oldMerchant = await merchantService.findMerchant(whatsappNumber);
+    if (oldMerchant) cache.clearForMerchant(oldMerchant._id.toString());
     await merchantService.deleteMerchant(whatsappNumber);
-    // NOTE: query cache invalidation for this merchant hooks in here once caching (Part 2+) exists
     await linkSessionService.updateSession(whatsappNumber, {
       step: 'awaiting_key_id',
       keyId: null,
