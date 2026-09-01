@@ -4,8 +4,8 @@ const { decrypt } = require('../../lib/encryption');
 const RAZORPAY_BASE_URL = 'https://api.razorpay.com/v1';
 
 function getAuthHeader(merchant) {
-  const keySecret = decrypt(merchant.razorpayKeySecretEncrypted);
-  const token = Buffer.from(`${merchant.razorpayKeyId}:${keySecret}`).toString('base64');
+  const keySecret = decrypt(merchant.keySecretEncrypted);
+  const token = Buffer.from(`${merchant.keyId}:${keySecret}`).toString('base64');
   return { Authorization: `Basic ${token}` };
 }
 
@@ -33,4 +33,18 @@ async function fetchSettlements(merchant, { from, to } = {}) {
   return response.data.items || [];
 }
 
-module.exports = { fetchPayments, fetchSettlements };
+async function getSuccessRate(merchant, { from, to } = {}) {
+  const payments = await fetchPayments(merchant, { from, to });
+  const total = payments.length;
+  const captured = payments.filter((p) => p.status === 'captured').length;
+  const rate = total === 0 ? null : (captured / total) * 100;
+  return { total, captured, failed: total - captured, rate };
+}
+
+async function getLastSettlement(merchant) {
+  const settlements = await fetchSettlements(merchant);
+  if (settlements.length === 0) return null;
+  return settlements.reduce((latest, s) => (s.created_at > latest.created_at ? s : latest));
+}
+
+module.exports = { fetchPayments, fetchSettlements, getSuccessRate, getLastSettlement };

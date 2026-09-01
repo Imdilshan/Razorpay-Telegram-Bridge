@@ -6,15 +6,24 @@ const merchantSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  razorpayKeyId: {
+  keyId: {
     type: String,
-    required: true,
+    default: null,
   },
-  razorpayKeySecretEncrypted: {
+  keySecretEncrypted: {
     type: String,
-    required: true,
+    default: null,
   },
-  linkedAt: {
+  onboardingState: {
+    type: String,
+    enum: ['awaiting_key_id', 'awaiting_key_secret', null],
+    default: null,
+  },
+  pendingKeyId: {
+    type: String,
+    default: null,
+  },
+  createdAt: {
     type: Date,
     default: Date.now,
   },

@@ -1,63 +1,31 @@
-// const linkingController = require('./linking.controller');
-// const queryController = require('./query.controller');
-// const { sendWhatsAppMessage } = require('../../lib/twilio');
-
-// async function handleIncomingMessage(req, res) {
-//   const from = req.body.From; // e.g. 'whatsapp:+91XXXXXXXXXX'
-//   const body = req.body.Body || '';
-
-//   let reply;
-
-//   try {
-//     reply = await linkingController.handleLinkingFlow(from, body);
-
-//     if (reply === null) {
-//       reply = await queryController.handleQueryCommand(from, body);
-//     }
-//   } catch (err) {
-//     console.error('Error handling incoming WhatsApp message:', err);
-//     reply = `Something went wrong on our end. Please try again in a moment.`;
-//   }
-
-//   try {
-//     await sendWhatsAppMessage(from, reply);
-//   } catch (err) {
-//     console.error('Error sending WhatsApp reply:', err);
-//   }
-
-//   res.status(200).send('<Response></Response>');
-// }
-
-// module.exports = { handleIncomingMessage };
-
-const linkingController = require('./linking.controller');
+const { MessagingResponse } = require('twilio').twiml;
+const onboardingController = require('./onboarding.controller');
 const queryController = require('./query.controller');
-
-function escapeXml(str) {
-  return str.replace(/[<>&'"]/g, (c) => ({
-    '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;',
-  }[c]));
-}
+const merchantService = require('../merchant/merchant.service');
 
 async function handleIncomingMessage(req, res) {
   const from = req.body.From;
   const body = req.body.Body || '';
 
   let reply;
-
   try {
-    reply = await linkingController.handleLinkingFlow(from, body);
+    const merchant = await merchantService.findMerchant(from);
 
-    if (reply === null) {
-      reply = await queryController.handleQueryCommand(from, body);
+    if (!merchantService.isConnected(merchant)) {
+      reply = await onboardingController.handleOnboarding(from, body, merchant);
+    } else {
+      reply = await queryController.handleQueryCommand(from, merchant, body);
     }
   } catch (err) {
     console.error('Error handling incoming WhatsApp message:', err);
     reply = `Something went wrong on our end. Please try again in a moment.`;
   }
 
+  const twiml = new MessagingResponse();
+  twiml.message(reply);
+
   res.set('Content-Type', 'text/xml');
-  res.status(200).send(`<Response><Message>${escapeXml(reply)}</Message></Response>`);
+  res.status(200).send(twiml.toString());
 }
 
 module.exports = { handleIncomingMessage };
