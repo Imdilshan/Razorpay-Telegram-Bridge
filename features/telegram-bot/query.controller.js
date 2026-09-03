@@ -16,7 +16,7 @@ async function handleQueryCommand(chatId, merchant, rawBody) {
       return `You've been disconnected. Your Razorpay credentials have been removed. Type 'connect' to link again.`;
     }
 
-    if (command.type === COMMANDS.TODAY) {
+    if (command.type === COMMANDS.TODAY_COLLECTIONS) {
       const cacheKey = 'today-collections';
       let stats = cache.get(merchantId, cacheKey);
       if (!stats) {
@@ -28,7 +28,7 @@ async function handleQueryCommand(chatId, merchant, rawBody) {
       return formatter.formatTodayCollections(stats);
     }
 
-    if (command.type === COMMANDS.WEEKLY) {
+    if (command.type === COMMANDS.WEEKLY_PERFORMANCE) {
       const cacheKey = 'weekly-performance';
       let stats = cache.get(merchantId, cacheKey);
       if (!stats) {
@@ -40,7 +40,7 @@ async function handleQueryCommand(chatId, merchant, rawBody) {
       return formatter.formatWeeklyPerformance(stats);
     }
 
-    if (command.type === COMMANDS.RECENT_PAYMENTS) {
+    if (command.type === COMMANDS.RECENT_TRANSACTIONS) {
       const cacheKey = 'recent-payments';
       let payments = cache.get(merchantId, cacheKey);
       if (!payments) {
@@ -48,18 +48,6 @@ async function handleQueryCommand(chatId, merchant, rawBody) {
         cache.set(merchantId, cacheKey, payments);
       }
       return formatter.formatRecentPayments(payments);
-    }
-
-    if (command.type === COMMANDS.SUCCESS_RATE) {
-      const cacheKey = 'success-rate';
-      let stats = cache.get(merchantId, cacheKey);
-      if (!stats) {
-        const from = dateRange.daysAgoUnix(7);
-        const to = dateRange.nowUnix();
-        stats = await razorpayClient.getSuccessRate(merchant, { from, to });
-        cache.set(merchantId, cacheKey, stats);
-      }
-      return formatter.formatSuccessRate(stats);
     }
 
     if (command.type === COMMANDS.SETTLEMENT) {
