@@ -17,31 +17,31 @@ function isConnected(merchant) {
   return !!(merchant && merchant.keySecretEncrypted);
 }
 
-async function findMerchant(whatsappNumber) {
-  return Merchant.findOne({ whatsappNumber });
+async function findMerchant(telegramChatId) {
+  return Merchant.findOne({ telegramChatId });
 }
 
-async function startOnboarding(whatsappNumber) {
+async function startOnboarding(telegramChatId) {
   return Merchant.findOneAndUpdate(
-    { whatsappNumber },
+    { telegramChatId },
     { $set: { onboardingState: 'awaiting_key_id', pendingKeyId: null } },
     { upsert: true, new: true, setDefaultsOnInsert: true }
   );
 }
 
-async function setPendingKeyId(whatsappNumber, keyId) {
+async function setPendingKeyId(telegramChatId, keyId) {
   return Merchant.findOneAndUpdate(
-    { whatsappNumber },
+    { telegramChatId },
     { $set: { onboardingState: 'awaiting_key_secret', pendingKeyId: keyId } },
     { new: true }
   );
 }
 
-// NOTE: Collecting the Razorpay Key Secret via plain WhatsApp text is acceptable here
+// NOTE: Collecting the Razorpay Key Secret via plain Telegram text is acceptable here
 // because this is a demo wired to test-mode keys only. A production onboarding flow
 // should collect secrets through an authenticated HTTPS web form, not a chat message.
-async function completeOnboarding(whatsappNumber, keySecretPlain) {
-  const merchant = await Merchant.findOne({ whatsappNumber });
+async function completeOnboarding(telegramChatId, keySecretPlain) {
+  const merchant = await Merchant.findOne({ telegramChatId });
   merchant.keyId = merchant.pendingKeyId;
   merchant.keySecretEncrypted = encrypt(keySecretPlain);
   merchant.onboardingState = null;
@@ -49,16 +49,16 @@ async function completeOnboarding(whatsappNumber, keySecretPlain) {
   return merchant.save();
 }
 
-async function resetOnboarding(whatsappNumber) {
+async function resetOnboarding(telegramChatId) {
   return Merchant.findOneAndUpdate(
-    { whatsappNumber },
+    { telegramChatId },
     { $set: { onboardingState: null, pendingKeyId: null } },
     { new: true }
   );
 }
 
-async function disconnectMerchant(whatsappNumber) {
-  return Merchant.deleteOne({ whatsappNumber });
+async function disconnectMerchant(telegramChatId) {
+  return Merchant.deleteOne({ telegramChatId });
 }
 
 module.exports = {

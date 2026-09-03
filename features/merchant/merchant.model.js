@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const merchantSchema = new mongoose.Schema({
-  whatsappNumber: {
+  telegramChatId: {
     type: String,
     required: true,
     unique: true,

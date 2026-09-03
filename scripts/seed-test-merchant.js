@@ -1,6 +1,6 @@
 // One-off helper: seeds a single merchant record straight into MongoDB, encrypted,
-// bypassing the WhatsApp onboarding flow — for local testing only.
-// Fill in RAZORPAY_TEST_KEY_ID / RAZORPAY_TEST_KEY_SECRET / RAZORPAY_TEST_WHATSAPP_NUMBER
+// bypassing the Telegram onboarding flow — for local testing only.
+// Fill in RAZORPAY_TEST_KEY_ID / RAZORPAY_TEST_KEY_SECRET / RAZORPAY_TEST_TELEGRAM_CHAT_ID
 // in .env, then run: node scripts/seed-test-merchant.js
 require('dotenv').config();
 const mongoose = require('mongoose');
@@ -11,17 +11,17 @@ const { encrypt } = require('../lib/encryption');
 async function main() {
   const keyId = process.env.RAZORPAY_TEST_KEY_ID;
   const keySecret = process.env.RAZORPAY_TEST_KEY_SECRET;
-  const whatsappNumber = process.env.RAZORPAY_TEST_WHATSAPP_NUMBER;
+  const telegramChatId = process.env.RAZORPAY_TEST_TELEGRAM_CHAT_ID;
 
-  if (!keyId || !keySecret || !whatsappNumber) {
-    console.error('Set RAZORPAY_TEST_KEY_ID, RAZORPAY_TEST_KEY_SECRET, and RAZORPAY_TEST_WHATSAPP_NUMBER in .env first.');
+  if (!keyId || !keySecret || !telegramChatId) {
+    console.error('Set RAZORPAY_TEST_KEY_ID, RAZORPAY_TEST_KEY_SECRET, and RAZORPAY_TEST_TELEGRAM_CHAT_ID in .env first.');
     process.exit(1);
   }
 
   await connectDB();
 
   await Merchant.findOneAndUpdate(
-    { whatsappNumber },
+    { telegramChatId },
     {
       $set: {
         keyId,
@@ -33,7 +33,7 @@ async function main() {
     { upsert: true, setDefaultsOnInsert: true }
   );
 
-  console.log(`Seeded merchant ${whatsappNumber} with key ${keyId}`);
+  console.log(`Seeded merchant ${telegramChatId} with key ${keyId}`);
   await mongoose.disconnect();
 }
 

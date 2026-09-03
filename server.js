@@ -1,14 +1,13 @@
 require('dotenv').config();
 const express = require('express');
 const { connectDB } = require('./lib/db');
-const whatsappRoutes = require('./routes/whatsapp.routes');
+const telegramRoutes = require('./routes/telegram.routes');
 
 const app = express();
-app.use(express.urlencoded({ extended: false })); // Twilio sends form-encoded payloads
-app.use(express.json());
+app.use(express.json()); // Telegram sends JSON payloads
 
 app.get('/health', (req, res) => res.status(200).send('ok'));
-app.use('/webhook/whatsapp', whatsappRoutes);
+app.use('/webhook/telegram', telegramRoutes);
 
 const PORT = process.env.PORT || 3000;
 
