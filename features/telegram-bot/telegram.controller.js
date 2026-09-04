@@ -23,7 +23,6 @@ async function handleIncomingMessage(req, res) {
 
   const message = req.body.message;
 
-  // Telegram also sends edited_message, channel_post, etc. — ignore anything without a chat
   if (!message || !message.chat) {
     return res.status(200).send('ok');
   }
@@ -80,8 +79,6 @@ async function handleCallbackQuery(callbackQuery) {
     if (!merchantService.isConnected(merchant)) {
       reply = `Type 'connect' to link your Razorpay account first.`;
     } else {
-      // callback_data reuses the same plain-text commands the parser already
-      // handles, so this runs through the exact same logic as typed text.
       reply = await queryController.handleQueryCommand(chatId, merchant, data);
     }
   } catch (err) {

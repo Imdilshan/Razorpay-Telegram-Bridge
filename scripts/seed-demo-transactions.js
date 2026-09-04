@@ -1,38 +1,8 @@
-// scripts/seed-demo-transactions.js
-//
-// Generates the demo dataset for "today" / "recent payments" / "this week" /
-// "settlement" by creating real Razorpay Test Mode Payment Links.
-//
-// WHY PAYMENT LINKS, NOT A DIRECT "CREATE PAYMENT" CALL:
-// Razorpay does not offer an API that fabricates a captured/failed payment
-// out of thin air — a payment only exists once a card/UPI flow actually runs.
-// The old trick of hitting /v1/payments/create/json with a UPI "collect" vpa
-// of success@razorpay / failure@razorpay is DEPRECATED (NPCI sunset UPI
-// Collect on 28 Feb 2026), so it's no longer reliable. Card fields are also
-// PCI-tokenized inside Razorpay's own iframes, so they can't be filled by a
-// plain API call either.
-//
-// The reliable, still-supported path: create a Payment Link per transaction,
-// then actually pay it in a real browser using a Razorpay TEST card. This
-// script does the API half and prints a checklist for the 5-minute manual
-// half. You only need to do this once — the data persists in your test
-// account for the rest of the hackathon.
-//
-// Usage:
-//   node scripts/seed-demo-transactions.js            # the 8-payment demo set
-//   node scripts/seed-demo-transactions.js --times=4   # repeat it 4x (~32 payments)
-//
-// Requires in .env:
-//   RAZORPAY_TEST_KEY_ID
-//   RAZORPAY_TEST_KEY_SECRET
-
 require('dotenv').config();
 const axios = require('axios');
 
 const RAZORPAY_BASE_URL = 'https://api.razorpay.com/v1';
 
-// Amounts (in ₹) and intended outcome, taken straight from the scope doc's
-// "Demo Data" example list.
 const DEMO_SET = [
   { amount: 500, outcome: 'success' },
   { amount: 1200, outcome: 'success' },
@@ -44,13 +14,8 @@ const DEMO_SET = [
   { amount: 2000, outcome: 'success' },
 ];
 
-// Razorpay TEST MODE cards. Any future expiry + any CVV works for all of these.
 const TEST_CARDS = {
-  // Generic success card — after clicking Pay you'll see a mock bank page;
-  // enter any 4-10 digit OTP (e.g. 1234) to complete it as captured.
   success: { number: '4111 1111 1111 1111', note: "then enter OTP '1234' on the mock bank page" },
-  // This card is wired by Razorpay to auto-decline with "insufficient funds" —
-  // no extra click needed, it lands as a failed payment on its own.
   failed: { number: '4100 2800 0008 0001', note: 'auto-declines — no OTP screen' },
 };
 
@@ -106,7 +71,6 @@ async function main() {
       const msg = err.response?.data?.error?.description || err.message;
       console.error(`  [${i + 1}/${batch.length}] FAILED to create link for ₹${amount}: ${msg}`);
     }
-    // Small delay to stay well clear of rate limits.
     await new Promise((r) => setTimeout(r, 300));
   }
 

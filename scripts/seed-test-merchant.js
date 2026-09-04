@@ -1,7 +1,3 @@
-// One-off helper: seeds a single merchant record straight into MongoDB, encrypted,
-// bypassing the Telegram onboarding flow — for local testing only.
-// Fill in RAZORPAY_TEST_KEY_ID / RAZORPAY_TEST_KEY_SECRET / RAZORPAY_TEST_TELEGRAM_CHAT_ID
-// in .env, then run: node scripts/seed-test-merchant.js
 require('dotenv').config();
 const mongoose = require('mongoose');
 const { connectDB } = require('../lib/db');

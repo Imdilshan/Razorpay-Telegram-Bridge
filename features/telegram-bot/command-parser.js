@@ -22,9 +22,6 @@ function hasAny(text, words) {
 function parseCommand(rawBody) {
   const text = normalize(rawBody);
 
-  // -----------------------------
-  // Disconnect
-  // -----------------------------
   if (
     hasAny(text, [
       'disconnect',
@@ -37,9 +34,6 @@ function parseCommand(rawBody) {
     return { type: COMMANDS.DISCONNECT };
   }
 
-  // -----------------------------
-  // Settlement
-  // -----------------------------
   if (
     hasAny(text, [
       'settlement',
@@ -55,9 +49,6 @@ function parseCommand(rawBody) {
     return { type: COMMANDS.SETTLEMENT };
   }
 
-  // -----------------------------
-  // Recent Transactions
-  // -----------------------------
   if (
     hasAny(text, [
       'recent payment',
@@ -79,9 +70,6 @@ function parseCommand(rawBody) {
     return { type: COMMANDS.RECENT_TRANSACTIONS };
   }
 
-  // -----------------------------
-  // Weekly Performance
-  // -----------------------------
   if (
     hasAny(text, [
       'this week',
@@ -101,9 +89,6 @@ function parseCommand(rawBody) {
     return { type: COMMANDS.WEEKLY_PERFORMANCE };
   }
 
-  // -----------------------------
-  // Today's Collections
-  // -----------------------------
   if (
     hasAny(text, [
       'today',
@@ -123,9 +108,6 @@ function parseCommand(rawBody) {
     return { type: COMMANDS.TODAY_COLLECTIONS };
   }
 
-  // -----------------------------
-  // Help
-  // -----------------------------
   if (
     hasAny(text, [
       'help',

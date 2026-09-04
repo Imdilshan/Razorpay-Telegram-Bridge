@@ -2,10 +2,6 @@ const merchantService = require('../merchant/merchant.service');
 
 const START_WORDS = ['connect', 'start'];
 
-/**
- * Drives the onboardingState state machine for a merchant that isn't
- * connected yet: awaiting_key_id -> awaiting_key_secret -> connected.
- */
 async function handleOnboarding(chatId, rawBody, merchant) {
   const body = rawBody || '';
   const trimmed = body.trim();
