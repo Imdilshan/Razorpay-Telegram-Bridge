@@ -169,4 +169,4 @@ Open your bot in Telegram and send `start`.
 
 ## Hackathon scope note
 
-Built in a single day. Deliberately excludes: AI/LLM integration, a web dashboard, payment creation, and refunds — kept to a 4-feature MVP (today's collections, recent transactions, weekly performance, settlement status) so it could be finished and demoed cleanly rather than left half-built.
+Deliberately excludes: AI/LLM integration, a web dashboard, payment creation, and refunds — kept to a 4-feature MVP (today's collections, recent transactions, weekly performance, settlement status) so it could be finished and demoed cleanly rather than left half-built.
